@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Note } from 'src/app/shared/note.model';
 import { NotesService } from 'src/app/shared/notes.service';
-import {animate, style, transition, trigger} from '@angular/animations';
+import {animate, query, stagger, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-notes-list',
@@ -53,6 +53,22 @@ import {animate, style, transition, trigger} from '@angular/animations';
           paddingRight: 0,
           'margin-top': '0',
         }))
+      ])
+    ]),
+    // Gives note by notes Animation or Staggering
+    trigger('listAnim', [
+      transition('* => *', [
+        query(':enter', [
+          style({
+            opacity: 0,
+            height: 0
+          }),
+          stagger(100, [
+            animate('0.2s ease')
+          ])
+        ], {
+          optional: true
+        })
       ])
     ])
   ]
