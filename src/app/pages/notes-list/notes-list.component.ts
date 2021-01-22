@@ -76,16 +76,57 @@ import {animate, query, stagger, style, transition, trigger} from '@angular/anim
 export class NotesListComponent implements OnInit {
 
   notes: Note[] = new Array<Note>();
+  filteredNotes: Note[] = new Array<Note>();
 
   constructor(private notesService: NotesService) { }
 
   ngOnInit(): void {
     // We want to retrieve all notes from note service
     this.notes = this.notesService.getAll();
+    this.filteredNotes = this.notes;
   }
 
   deleteNote(id: number): void {
     this.notesService.delete(id);
+  }
+
+  filter(query: string) {
+    query = query.toLocaleLowerCase().trim();
+
+    let allResults: Note[] = new Array<any>();
+    // Split by indivual words
+    let terms: string[] = query.split(' ');
+    // Ease Duplicates
+    terms = this.removeDuplicates(terms);
+    //Add all results
+    terms.forEach(term => {
+      let results: Note[] = this.relevantNotes(term);
+      allResults = [...allResults, ...results];
+    });
+
+    let uniqueResults = this.removeDuplicates(allResults);
+    this.filteredNotes = uniqueResults;
+  }
+
+  removeDuplicates(arr: Array<any>): Array<any> {
+    let uniqueResults: Set<any> = new Set<any>();
+    arr.forEach(e => uniqueResults.add(e));
+    return Array.from(uniqueResults);
+  }
+
+  relevantNotes(query: string): Array<any> {
+    query = query.toLocaleLowerCase().trim();
+    let relavantNotes = this.notes.filter(note => {
+      if(note.title && note.title.toLowerCase().includes(query)) {
+        return true;
+      }
+      if(note.body && note.body.toLowerCase().includes(query)) {
+        return true;
+      }
+      return false;
+    })
+
+    return relavantNotes;
   }
 
 }
